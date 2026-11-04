@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ガソリン価格バイブコーダー</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #e2e8f0;
+    overflow: hidden;
+  }
+
+  .app {
+    width: min(92vw, 460px);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 1.6rem;
+  }
+
+  .sub {
+    margin: 0 0 20px;
+    color: #94a3b8;
+  }
+
+  .price {
+    font-size: 4rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin: 12px 0;
+  }
+
+  .price small {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #94a3b8;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: #22c55e;
+    margin: 18px 0 8px;
+  }
+
+  label {
+    display: block;
+    color: #94a3b8;
+    margin-bottom: 16px;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    border: 0;
+    border-radius: 14px;
+    background: #22c55e;
+    color: #052e16;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+
+  #msg {
+    margin-top: 18px;
+    min-height: 24px;
+    color: #cbd5e1;
+  }
+
+  .confetti {
+    position: fixed;
+    top: -10px;
+    width: 10px;
+    height: 14px;
+    border-radius: 2px;
+    animation: fall 2.5s linear forwards;
+    z-index: 99;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <h1>⛽ ガソリン価格バイブコーダー</h1>
+    <p class="sub">スライダーを動かして。数字がどうにか耐えるのを見てみよう。</p>
+
+    <div class="price">$<span id="price">4.29</span><small>/ガロン</small></div>
+
+    <input type="range" id="vibes" min="0" max="100" value="0" />
+    <label>バイブス: <span id="vibeLabel">0%</span></label>
+
+    <button id="btn">バイブスでコードを書く</button>
+    <div id="msg">現実: 未変更。</div>
+  </div>
+
+<script>
+  const START_PRICE = 4.29;
+
+  const vibes = document.getElementById("vibes");
+  const price = document.getElementById("price");
+  const label = document.getElementById("vibeLabel");
+  const msg = document.getElementById("msg");
+  const btn = document.getElementById("btn");
+
+  function update() {
+    const v = Number(vibes.value);
+    const p = START_PRICE * (1 - v / 100);
+
+    price.textContent = p.toFixed(2);
+    label.textContent = v + "%";
+
+    if (v < 20) {
+      msg.textContent = "バイブスが弱い。OPECが笑っている。";
+    } else if (v < 50) {
+      msg.textContent = "ちょっと空気抵抗が減った。タイヤの空気を入れれば？";
+    } else if (v < 80) {
+      msg.textContent = "精製能力 +10%（想像の中で）。";
+    } else if (v < 100) {
+      msg.textContent = "バイブス連邦準備制度が介入した。";
+    } else {
+      msg.textContent = "$0.00/ガロン。やった。何も起こらなかった。🎉";
+    }
+
+    document.body.style.filter = `hue-rotate(${v * 3}deg)`;
+  }
+
+  vibes.addEventListener("input", update);
+
+  btn.addEventListener("click", () => {
+    let v = 0;
+
+    const t = setInterval(() => {
+      v += 2;
+      vibes.value = v;
+      update();
+
+      if (v >= 100) {
+        clearInterval(t);
+        confetti();
+      }
+    }, 16);
+  });
+
+  function confetti() {
+    for (let i = 0; i < 80; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = `hsl(${Math.random() * 360}, 90%, 60%)`;
+      c.style.animationDelay = Math.random() * 0.5 + "s";
+      c.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3000);
+    }
+  }
+
+  update();
+</script>
+</body>
+</html>
